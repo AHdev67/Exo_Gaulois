@@ -55,7 +55,14 @@ INNER JOIN prendre_casque ON personnage.id_personnage = prendre_casque.id_person
 INNER JOIN bataille ON prendre_casque.id_bataille = bataille.id_bataille
 WHERE prendre_casque.id_bataille = 1
 GROUP BY personnage.id_personnage
-ORDER BY casques_pris DESC;
+HAVING casques_pris >= ALL(
+	SELECT SUM(prendre_casque.qte)
+	FROM personnage
+	INNER JOIN prendre_casque ON personnage.id_personnage = prendre_casque.id_personnage
+	INNER JOIN bataille ON prendre_casque.id_bataille = bataille.id_bataille
+	WHERE prendre_casque.id_bataille = 1
+	GROUP BY personnage.id_personnage
+)	
 
 -- 9) Nom des personnages et leur quantité de potion bue (en les classant du plus grand buveur au plus petit)
 SELECT nom_personnage, SUM(dose_boire) AS potion_bue
@@ -63,3 +70,29 @@ FROM personnage
 INNER JOIN boire ON personnage.id_personnage = boire.id_personnage
 GROUP BY personnage.id_personnage
 ORDER BY potion_bue DESC;
+
+-- 10) Nom de la bataille où le nombre de casques pris a été le plus important
+SELECT nom_bataille, SUM(prendre_casque.qte) AS casques_pris
+FROM bataille
+INNER JOIN prendre_casque ON bataille.id_bataille = prendre_casque.id_bataille
+GROUP BY bataille.id_bataille
+HAVING casques_pris >= ALL(
+	SELECT SUM(prendre_casque.qte)
+	FROM bataille
+	INNER JOIN prendre_casque ON bataille.id_bataille = prendre_casque.id_bataille
+	GROUP BY bataille.id_bataille
+);
+
+-- 11) Combien existe-t-il de casques de chaque type et quel est leur coût total ? (classés par nombre décroissant)
+SELECT nom_type_casque, COUNT(casque.nom_casque) AS qte_type_casque, SUM(cout_casque) AS cout_total
+FROM type_casque
+INNER JOIN casque ON type_casque.id_type_casque = casque.id_type_casque
+GROUP BY type_casque.id_type_casque
+ORDER BY qte_type_casque;
+
+-- 12) Nom des potions dont un des ingrédients est le poisson frais
+SELECT nom_potion AS potion_poisson
+FROM potion
+INNER JOIN composer ON potion.id_potion = composer.id_potion
+INNER JOIN ingredient ON composer.id_ingredient = ingredient.id_ingredient
+WHERE ingredient.id_ingredient = 24;
