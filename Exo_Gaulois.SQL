@@ -99,11 +99,13 @@ WHERE ingredient.id_ingredient = 24;
 SELECT nom_lieu, COUNT(personnage.id_personnage) AS nb_habitants
 FROM lieu
 INNER JOIN personnage ON lieu.id_lieu = personnage.id_lieu
+WHERE NOT lieu.id_lieu = 1
 GROUP BY lieu.id_lieu
 HAVING nb_habitants >= ALL(
 	SELECT COUNT(personnage.id_personnage)
 	FROM lieu
 	INNER JOIN personnage ON lieu.id_lieu = personnage.id_lieu
+	WHERE NOT lieu.id_lieu = 1
 	GROUP BY lieu.id_lieu
 );
 
