@@ -1,8 +1,7 @@
 -- 1) Nom des lieux qui finissent par 'um'
 SELECT nom_lieu
 FROM lieu
-WHERE nom_lieu
-LIKE '%um';
+WHERE nom_lieu LIKE '%um';
 
 --  2) Nombre de personnages par lieu (trié par nombre de personnages décroissant)
 SELECT nom_lieu,
@@ -96,3 +95,29 @@ FROM potion
 INNER JOIN composer ON potion.id_potion = composer.id_potion
 INNER JOIN ingredient ON composer.id_ingredient = ingredient.id_ingredient
 WHERE ingredient.id_ingredient = 24;
+
+-- 13) Nom du / des lieu(x) possédant le plus d'habitants, en dehors du village gaulois
+SELECT nom_lieu, COUNT(personnage.id_personnage) AS nb_habitants
+FROM lieu
+INNER JOIN personnage ON lieu.id_lieu = personnage.id_lieu
+GROUP BY lieu.id_lieu
+HAVING nb_habitants >= ALL(
+	SELECT COUNT(personnage.id_personnage)
+	FROM lieu
+	INNER JOIN personnage ON lieu.id_lieu = personnage.id_lieu
+	GROUP BY lieu.id_lieu
+);
+
+-- 14) Nom des personnages qui n'ont jamais bu aucune potion.
+SELECT nom_personnage AS personnages_sobres
+FROM personnage p
+WHERE NOT EXISTS(SELECT id_personnage FROM boire b WHERE p.id_personnage = b.id_personnage);
+
+-- 15) Nom du / des personnages qui n'ont pas le droit de boire de la potion 'Magique'
+SELECT nom_personnage
+FROM personnage p
+WHERE p.id_personnage NOT IN (
+	SELECT id_personnage
+	FROM autoriser_boire ab
+	WHERE ab.id_potion = 1
+);
