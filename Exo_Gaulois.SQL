@@ -4,13 +4,12 @@ FROM lieu
 WHERE nom_lieu LIKE '%um';
 
 --  2) Nombre de personnages par lieu (trié par nombre de personnages décroissant)
-SELECT nom_lieu,
-	COUNT(id_personnage)
+SELECT nom_lieu, COUNT(id_personnage) AS nb_personnages
 FROM personnage
 INNER JOIN lieu
 	ON personnage.id_lieu = lieu.id_lieu
 GROUP BY lieu.id_lieu
-ORDER BY COUNT(lieu.id_lieu) DESC
+ORDER BY nb_personnages DESC
 
 -- 3) Nom des personnages + spécialité + adresse et lieu d'habitation, triés par lieu puis par nom de personnage
 SELECT nom_personnage, nom_specialite, adresse_personnage, nom_lieu
@@ -20,11 +19,11 @@ INNER JOIN lieu ON personnage.id_lieu = lieu.id_lieu
 ORDER BY lieu.nom_lieu, personnage.nom_personnage;
 
 -- 4) Nom des spécialités avec nombre de personnages par spécialité (trié par nombre de personnages décroissant)
-SELECT nom_specialite, COUNT(id_personnage)
+SELECT nom_specialite, COUNT(id_personnage) AS nb_personnages
 FROM specialite
 INNER JOIN personnage ON specialite.id_specialite = personnage.id_specialite
 GROUP BY specialite.id_specialite
-ORDER BY COUNT(id_personnage) DESC;
+ORDER BY nb_personnages DESC;
 
 -- 5) Nom, date et lieu des batailles, classées de la plus récente à la plus ancienne (dates affichées au format jj/mm/aaaa)
 SELECT nom_bataille, DATE_FORMAT(date_bataille, "%d/%m/%Y"), lieu.nom_lieu
@@ -38,7 +37,7 @@ FROM potion
 INNER JOIN composer ON potion.id_potion = composer.id_potion
 INNER JOIN ingredient ON composer.id_ingredient = ingredient.id_ingredient
 GROUP BY potion.id_potion
-ORDER BY cout_potion;
+ORDER BY cout_potion DESC;
 
 -- 7) Nom des ingrédients + coût + quantité de chaque ingrédient qui composent la potion 'Santé'
 SELECT nom_ingredient, cout_ingredient, qte
@@ -87,7 +86,7 @@ SELECT nom_type_casque, COUNT(casque.nom_casque) AS qte_type_casque, SUM(cout_ca
 FROM type_casque
 INNER JOIN casque ON type_casque.id_type_casque = casque.id_type_casque
 GROUP BY type_casque.id_type_casque
-ORDER BY qte_type_casque;
+ORDER BY qte_type_casque DESC;
 
 -- 12) Nom des potions dont un des ingrédients est le poisson frais
 SELECT nom_potion AS potion_poisson
